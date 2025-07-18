@@ -24,6 +24,7 @@
 #include "clang/Lex/PreprocessorOptions.h"
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Parse/ParseAST.h"
+#include "llvm/Support/VirtualFileSystem.h" // For llvm::vfs::get  GlobalVirtualFileSystem()
 
 #include "Transformation.h"
 
@@ -90,8 +91,14 @@ bool TransformationManager::initializeCompilerInstance(std::string &ErrorMsg)
 
   ClangInstance = new CompilerInstance();
   assert(ClangInstance);
-  
+
+#if LLVM_VERSION_MAJOR >= 20
+  // Get the global virtual file system
+  auto VFS = llvm::vfs::getRealFileSystem();
+  ClangInstance->createDiagnostics(*VFS);
+#else
   ClangInstance->createDiagnostics();
+#endif
 
   TargetOptions &TargetOpts = ClangInstance->getTargetOpts();
   PreprocessorOptions &PPOpts = ClangInstance->getPreprocessorOpts();
