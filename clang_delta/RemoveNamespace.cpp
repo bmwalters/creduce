@@ -566,8 +566,10 @@ bool RemoveNamespaceRewriteVisitor::TraverseNestedNameSpecifierLoc(
           ND = NAD->getNamespace()->getCanonicalDecl();
         break;
       }
-      case NestedNameSpecifier::TypeSpec: // Fall-through
-      case NestedNameSpecifier::TypeSpecWithTemplate:
+#if LLVM_VERSION_MAJOR < 21
+      case NestedNameSpecifier::TypeSpecWithTemplate: // Fall-through
+#endif
+      case NestedNameSpecifier::TypeSpec:
         TraverseTypeLoc(Loc.getTypeLoc());
         break;
       default:
