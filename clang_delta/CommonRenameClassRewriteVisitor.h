@@ -310,7 +310,11 @@ template<typename T> bool CommonRenameClassRewriteVisitor<T>::
     dyn_cast<DependentTemplateSpecializationType>(Ty);
   TransAssert(DTST && "Bad DependentTemplateSpecializationType!");
 
+#if LLVM_VERSION_MAJOR >= 21
+  const IdentifierInfo *IdInfo = DTST->getDependentTemplateName().getName().getIdentifier();
+#else
   const IdentifierInfo *IdInfo = DTST->getIdentifier();
+#endif
   std::string IdName = IdInfo->getName().str();
   std::string Name;
   if (getNewNameByName(IdName, Name)) {

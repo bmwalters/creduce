@@ -635,8 +635,10 @@ const DeclContext *Transformation::getDeclContextFromSpecifier(
         const NamespaceAliasDecl *NAD = NNS->getAsNamespaceAlias();
         return NAD->getNamespace()->getCanonicalDecl();
       }
-      case NestedNameSpecifier::TypeSpec: // Fall-through
-      case NestedNameSpecifier::TypeSpecWithTemplate: {
+#if LLVM_VERSION_MAJOR < 21
+      case NestedNameSpecifier::TypeSpecWithTemplate: // Fall-through
+#endif
+      case NestedNameSpecifier::TypeSpec: {
         const Type *Ty = NNS->getAsType();
         if (const RecordType *RT = Ty->getAs<RecordType>())
           return RT->getDecl();

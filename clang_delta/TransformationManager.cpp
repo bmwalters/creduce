@@ -132,7 +132,7 @@ bool TransformationManager::initializeCompilerInstance(std::string &ErrorMsg)
     ClangInstance->createFileManager();
 
     if(CLCPath != NULL && ClangInstance->hasFileManager() &&
-       ClangInstance->getFileManager().getDirectory(CLCPath, false)) {
+       ClangInstance->getFileManager().getOptionalDirectoryRef(CLCPath, false)) {
         Args.push_back("-I");
         Args.push_back(CLCPath);
     }
@@ -153,8 +153,13 @@ bool TransformationManager::initializeCompilerInstance(std::string &ErrorMsg)
   }
 
   TargetInfo *Target = 
+#if LLVM_VERSION_MAJOR >= 21
+    TargetInfo::CreateTargetInfo(ClangInstance->getDiagnostics(),
+                                 ClangInstance->getInvocation().getTargetOpts());
+#else
     TargetInfo::CreateTargetInfo(ClangInstance->getDiagnostics(),
                                  ClangInstance->getInvocation().TargetOpts);
+#endif
   ClangInstance->setTarget(Target);
 
   if (const char *env = getenv("CREDUCE_INCLUDE_PATH")) {
