@@ -146,8 +146,13 @@ bool TransformationManager::initializeCompilerInstance(std::string &ErrorMsg)
   }
 
   TargetInfo *Target = 
+#if LLVM_VERSION_MAJOR >= 21
+    TargetInfo::CreateTargetInfo(ClangInstance->getDiagnostics(),
+                                 ClangInstance->getInvocation().getTargetOpts());
+#else
     TargetInfo::CreateTargetInfo(ClangInstance->getDiagnostics(),
                                  ClangInstance->getInvocation().TargetOpts);
+#endif
   ClangInstance->setTarget(Target);
 
   if (const char *env = getenv("CREDUCE_INCLUDE_PATH")) {
