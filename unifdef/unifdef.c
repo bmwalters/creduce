@@ -201,7 +201,7 @@ static int              depth;			/* current #if nesting */
 static int              delcount;		/* count of deleted lines */
 static unsigned         blankcount;		/* count of blank lines */
 static unsigned         blankmax;		/* maximum recent blankcount */
-static bool             constexpr;		/* constant #if expression */
+static bool             isconstexpr;		/* constant #if expression */
 static bool             zerosyms;		/* to format symdepth output */
 static bool             firstsym;		/* ditto */
 
@@ -1078,7 +1078,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
 			*valp = (value[sym] != NULL);
 			lt = *valp ? LT_TRUE : LT_FALSE;
 		}
-		constexpr = false;
+		isconstexpr = false;
 	} else if (!endsym(*cp)) {
 		debug("eval%d symbol", prec(ops));
 		sym = findsym(&cp);
@@ -1095,7 +1095,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
 			lt = *valp ? LT_TRUE : LT_FALSE;
 			cp = skipargs(cp);
 		}
-		constexpr = false;
+		isconstexpr = false;
 	} else {
 		debug("eval%d bad expr", prec(ops));
 		return (LT_ERROR);
@@ -1162,10 +1162,10 @@ ifeval(const char **cpp)
 	long val = 0;
 
 	debug("eval %s", *cpp);
-	constexpr = killconsts ? false : true;
+	isconstexpr = killconsts ? false : true;
 	ret = eval_table(eval_ops, &val, cpp);
 	debug("eval = %d", val);
-	return (constexpr ? LT_IF : ret == LT_ERROR ? LT_IF : ret);
+	return (isconstexpr ? LT_IF : ret == LT_ERROR ? LT_IF : ret);
 }
 
 /*
